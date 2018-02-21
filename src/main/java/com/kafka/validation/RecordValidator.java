@@ -40,8 +40,7 @@ public class RecordValidator {
     }
 
     private boolean isRecordSame(ConsumerRecord backupRecord, ConsumerRecord productionRecord) {
-        int backupSerializedValueSize = backupRecord.serializedValueSize();
-        int productionSerializedValueSize = productionRecord.serializedValueSize();
-        return backupSerializedValueSize == productionSerializedValueSize;
+        return backupRecord.serializedValueSize() == productionRecord.serializedValueSize()
+                && backupRecord.serializedKeySize() == backupRecord.serializedKeySize();
     }
 }
