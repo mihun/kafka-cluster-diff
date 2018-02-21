@@ -1,0 +1,39 @@
+group 'kafka'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.10.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'gs-spring-boot'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter")
+    testCompile("junit:junit")
+    compile ("org.apache.kafka:kafka_2.12:0.11.0.1") {
+        exclude group: 'log4j'
+        exclude group: 'org.slf4j'
+    }
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+    compileOnly ("org.projectlombok:lombok:1.16.14")
+}
