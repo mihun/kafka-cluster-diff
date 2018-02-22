@@ -1,28 +1,29 @@
 package com.kafka.consumer.configuration;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.springframework.core.io.ClassPathResource;
 
-import java.util.ArrayList;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 public class ConsumerConfiguration {
 
-    public static final Properties backupConsumerProperties;
-    public static final Properties productionConsumerProperties;
-    public static List<String> excludeTopicList;
+    public static final Properties BACKUP_CONSUMER_PROPERTIES;
+    public static final Properties PRODUCTION_CONSUMER_PROPERTIES;
+    public static final int NUMBER_OF_THREADS;
+    public static List<Object> excludeTopicList;
+
 
     static {
-        backupConsumerProperties = formProperties(Constants.BACKUP_HOST);
-        productionConsumerProperties = formProperties(Constants.PRODUCTION_HOST);
-        excludeTopicList = excludeTopicList();
-    }
-
-    private static List<String> excludeTopicList() {
-        excludeTopicList = new ArrayList<>();
-        excludeTopicList.add("__consumer_offsets");
-        return excludeTopicList;
+        PropertiesConfiguration properties = readCustomProperties();
+        BACKUP_CONSUMER_PROPERTIES = formProperties(properties.getString("target_host"));
+        PRODUCTION_CONSUMER_PROPERTIES = formProperties(properties.getString("source_host"));
+        NUMBER_OF_THREADS = properties.getInt("threads");
+        excludeTopicList = properties.getList("exclude_topics");
     }
 
     private static Properties formProperties(String host) {
@@ -40,5 +41,14 @@ public class ConsumerConfiguration {
         return properties;
     }
 
+    private static PropertiesConfiguration readCustomProperties(){
+        try (InputStream props = new FileInputStream(new ClassPathResource("custom.properties").getFile())) {
+            PropertiesConfiguration properties = new PropertiesConfiguration();
+            properties.load(props);
+            return properties;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 }

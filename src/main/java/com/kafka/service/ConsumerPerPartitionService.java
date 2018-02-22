@@ -27,8 +27,8 @@ public class ConsumerPerPartitionService implements Runnable{
 
     public ConsumerPerPartitionService() {
         consumerController = StaticContextHolder.getBean(ConsumerController.class);
-        backupConsumer = consumerController.create(ConsumerConfiguration.backupConsumerProperties);
-        productionConsumer = consumerController.create(ConsumerConfiguration.productionConsumerProperties);
+        backupConsumer = consumerController.create(ConsumerConfiguration.BACKUP_CONSUMER_PROPERTIES);
+        productionConsumer = consumerController.create(ConsumerConfiguration.PRODUCTION_CONSUMER_PROPERTIES);
         recordValidator = StaticContextHolder.getBean(RecordValidator.class);
     }
 

@@ -1,6 +1,5 @@
 package com.kafka.service;
 
-import com.kafka.consumer.configuration.Constants;
 import com.kafka.consumer.configuration.ConsumerConfiguration;
 import com.kafka.consumer.ConsumerController;
 import com.kafka.out.OutputManager;
@@ -30,16 +29,16 @@ public class KafkaApplicationService {
     }
 
     public void run()  {
-        KafkaConsumer backupConsumer = consumerController.create(ConsumerConfiguration.backupConsumerProperties);
-        KafkaConsumer productionConsumer = consumerController.create(ConsumerConfiguration.productionConsumerProperties);
+        KafkaConsumer backupConsumer = consumerController.create(ConsumerConfiguration.BACKUP_CONSUMER_PROPERTIES);
+        KafkaConsumer productionConsumer = consumerController.create(ConsumerConfiguration.PRODUCTION_CONSUMER_PROPERTIES);
 
         topicConsistenceValidator.validate(backupConsumer, productionConsumer);
 
         Set<TopicPartition> topicPartitions = consumerController.collectAllTopicPartitions(backupConsumer);
         OutputManager.storeNumberOfPartitions(topicPartitions.size());
         blockingQueue = new ArrayBlockingQueue<>(topicPartitions.size(), true, topicPartitions);
-        Thread[] threads = new Thread[Constants.NUMBER_OF_THREADS];
-        for (int i = 0; i < Constants.NUMBER_OF_THREADS; i++) {
+        Thread[] threads = new Thread[ConsumerConfiguration.NUMBER_OF_THREADS];
+        for (int i = 0; i < ConsumerConfiguration.NUMBER_OF_THREADS; i++) {
             Thread thread = new Thread(new ConsumerPerPartitionService());
             threads[i] = thread;
             thread.start();
