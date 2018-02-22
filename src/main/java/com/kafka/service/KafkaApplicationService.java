@@ -5,7 +5,6 @@ import com.kafka.consumer.configuration.ConsumerConfiguration;
 import com.kafka.consumer.ConsumerController;
 import com.kafka.out.OutputManager;
 import com.kafka.validation.TopicConsistenceValidator;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-@Slf4j
 @Service
 public class KafkaApplicationService {
 
