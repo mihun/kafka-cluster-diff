@@ -16,7 +16,7 @@ apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 jar {
-    baseName = 'gs-spring-boot'
+    baseName = 'kafka-cluster-diff'
     version =  '0.1.0'
 }
 

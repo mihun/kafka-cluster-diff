@@ -4,7 +4,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -42,7 +41,7 @@ public class ConsumerConfiguration {
     }
 
     private static PropertiesConfiguration readCustomProperties(){
-        try (InputStream props = new FileInputStream(new ClassPathResource("custom.properties").getFile())) {
+        try (InputStream props = new ClassPathResource("custom.properties").getInputStream()) {
             PropertiesConfiguration properties = new PropertiesConfiguration();
             properties.load(props);
             return properties;

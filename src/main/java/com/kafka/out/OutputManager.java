@@ -37,13 +37,19 @@ public class OutputManager {
     }
 
     public static void printFailed(){
-        log.error("FAILED TopicPartition Result:");
-        log.error("{}", failed);
+        if (failed.size() > 0) {
+            log.error("FAILED TopicPartition Result:");
+            for (TopicPartition topicPartition : failed.keySet()) {
+                log.error("Topic-Partition: [{}], Reason: [{}]", topicPartition, failed.get(topicPartition));
+            }
+        }
     }
 
     public static void printSuccessful(){
         log.info("SUCCESSFUL TopicPartition Result:");
-        log.info("{}", successful);
+        for (TopicPartition topicPartition : successful) {
+            log.info("Topic-Partition [{}]", topicPartition);
+        }
     }
 
     public static void printProgress(){
