@@ -29,6 +29,8 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter")
+    compile("org.springframework.boot:spring-boot-starter-test")
+    compile("org.springframework.boot:spring-boot-autoconfigure")
     testCompile("junit:junit")
     compile ("org.apache.kafka:kafka_2.12:0.11.0.1") {
         exclude group: 'log4j'

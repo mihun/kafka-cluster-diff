@@ -2,6 +2,8 @@ package com.kafka.consumer.configuration;
 
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -9,10 +11,18 @@ public class ConsumerConfiguration {
 
     public static final Properties backupConsumerProperties;
     public static final Properties productionConsumerProperties;
+    public static List<String> excludeTopicList;
 
     static {
         backupConsumerProperties = formProperties(Constants.BACKUP_HOST);
         productionConsumerProperties = formProperties(Constants.PRODUCTION_HOST);
+        excludeTopicList = excludeTopicList();
+    }
+
+    private static List<String> excludeTopicList() {
+        excludeTopicList = new ArrayList<>();
+        excludeTopicList.add("__consumer_offsets");
+        return excludeTopicList;
     }
 
     private static Properties formProperties(String host) {
@@ -29,4 +39,6 @@ public class ConsumerConfiguration {
         properties.put(Constants.BOOTSTRAP_SERVERS_PROPERTY, host);
         return properties;
     }
+
+
 }

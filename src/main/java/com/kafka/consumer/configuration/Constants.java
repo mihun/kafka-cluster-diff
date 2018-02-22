@@ -3,8 +3,8 @@ package com.kafka.consumer.configuration;
 public interface Constants {
 
     int NUMBER_OF_THREADS = 16;
-    String BACKUP_HOST = "localhost:9092";
-    String PRODUCTION_HOST = "localhost:9093";
+    String BACKUP_HOST = "localhost:9093";
+    String PRODUCTION_HOST = "localhost:9092";
 
 
     String ENABLE_AUTO_COMMIT_PROPERTY = "enable.auto.commit";

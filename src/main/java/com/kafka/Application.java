@@ -1,25 +1,26 @@
 package com.kafka;
 
 import com.kafka.service.KafkaApplicationService;
-import org.springframework.boot.CommandLineRunner;
+import com.kafka.spring.StaticContextHolder;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
-public class Application {
+@EnableScheduling
+public class Application  implements ApplicationRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext context) {
-        KafkaApplicationService kafkaApplicationService = context.getBean(KafkaApplicationService.class);
-        kafkaApplicationService.run();
-        return null;
+    @Override
+    public void run(ApplicationArguments args)  {
+        StaticContextHolder.getBean(KafkaApplicationService.class).run();
+        System.exit(0);
     }
 
 }

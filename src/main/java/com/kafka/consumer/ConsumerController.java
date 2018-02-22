@@ -1,7 +1,6 @@
 package com.kafka.consumer;
 
 import com.kafka.consumer.configuration.ConsumerConfiguration;
-import com.kafka.consumer.concurrent.ConsumerHolder;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -36,7 +35,8 @@ public class ConsumerController {
 
     public Set<TopicPartition> collectAllTopicPartitions(KafkaConsumer consumer) {
         Map<String, List<PartitionInfo>> allTopics = consumer.listTopics();
-        Set<TopicPartition> topicPartitions; topicPartitions = new HashSet<>(allTopics.size());
+        Set<TopicPartition> topicPartitions = new HashSet<>(allTopics.size());
+        allTopics.keySet().removeAll(ConsumerConfiguration.excludeTopicList);
         allTopics
                 .values()
                 .stream()
@@ -45,7 +45,4 @@ public class ConsumerController {
         return topicPartitions;
     }
 
-    public ConsumerHolder createConsumerHolder() {
-        return new ConsumerHolder(create(ConsumerConfiguration.backupConsumerProperties), create(ConsumerConfiguration.productionConsumerProperties));
-    }
 }
