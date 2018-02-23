@@ -2,7 +2,7 @@ package com.kafka.service;
 
 import com.kafka.consumer.ConsumerController;
 import com.kafka.consumer.configuration.ConsumerConfiguration;
-import com.kafka.out.OutputManager;
+import com.kafka.output.OutputManager;
 import com.kafka.spring.StaticContextHolder;
 import com.kafka.validation.RecordValidator;
 import com.kafka.validation.ValidationResult;

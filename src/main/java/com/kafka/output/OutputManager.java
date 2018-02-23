@@ -1,4 +1,4 @@
-package com.kafka.out;
+package com.kafka.output;
 
 import com.kafka.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;

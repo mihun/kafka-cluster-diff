@@ -2,7 +2,7 @@ package com.kafka.service;
 
 import com.kafka.consumer.configuration.ConsumerConfiguration;
 import com.kafka.consumer.ConsumerController;
-import com.kafka.out.OutputManager;
+import com.kafka.output.OutputManager;
 import com.kafka.validation.TopicConsistenceValidator;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
