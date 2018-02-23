@@ -1,11 +1,10 @@
-package com.kafka.consumer;
+package com.kafka.controller;
 
 import com.kafka.consumer.configuration.ConsumerConfiguration;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -13,8 +12,11 @@ import java.util.*;
 @Component
 public class ConsumerController {
 
-    public KafkaConsumer create(Properties properties){
-        return new KafkaConsumer(properties);
+    private final ConsumerConfiguration consumerConfiguration;
+
+    @Autowired
+    public ConsumerController(ConsumerConfiguration consumerConfiguration) {
+        this.consumerConfiguration = consumerConfiguration;
     }
 
     public List<ConsumerRecord> readMessage(KafkaConsumer consumer){
@@ -33,16 +35,14 @@ public class ConsumerController {
         return readData(consumer, consumerRecords);
     }
 
-    public Set<TopicPartition> collectAllTopicPartitions(KafkaConsumer consumer) {
-        Map<String, List<PartitionInfo>> allTopics = consumer.listTopics();
-        Set<TopicPartition> topicPartitions = new HashSet<>(allTopics.size());
-        allTopics.keySet().removeAll(ConsumerConfiguration.excludeTopicList);
-        allTopics
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(partitionInfo -> topicPartitions.add(new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
-        return topicPartitions;
+
+
+    public KafkaConsumer createBackupConsumer(){
+        return new KafkaConsumer(consumerConfiguration.getBackupConsumerProperties());
+    }
+
+    public KafkaConsumer createProductionConsumer(){
+        return new KafkaConsumer(consumerConfiguration.getProductionConsumerProperties());
     }
 
 }

@@ -1,61 +1,41 @@
 package com.kafka.service;
 
-import com.kafka.consumer.configuration.ConsumerConfiguration;
-import com.kafka.consumer.ConsumerController;
+import com.kafka.controller.ThreadController;
+import com.kafka.controller.TopicPartitionController;
 import com.kafka.output.OutputManager;
-import com.kafka.validation.TopicConsistenceValidator;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 @Service
 public class KafkaApplicationService {
 
-    public static BlockingQueue<TopicPartition> blockingQueue;
-
-    private final TopicConsistenceValidator topicConsistenceValidator;
-    private final ConsumerController consumerController;
+    private final OutputManager outputManager;
+    private final TopicPartitionController topicPartitionController;
+    private final ThreadController threadController;
 
     @Autowired
-    public KafkaApplicationService(TopicConsistenceValidator topicConsistenceValidator, ConsumerController consumerController) {
-        this.topicConsistenceValidator = topicConsistenceValidator;
-        this.consumerController = consumerController;
+    public KafkaApplicationService(OutputManager outputManager,
+                                   TopicPartitionController topicPartitionController,
+                                   ThreadController threadController) {
+        this.outputManager = outputManager;
+        this.topicPartitionController = topicPartitionController;
+        this.threadController = threadController;
     }
 
     public void run()  {
-        KafkaConsumer backupConsumer = consumerController.create(ConsumerConfiguration.BACKUP_CONSUMER_PROPERTIES);
-        KafkaConsumer productionConsumer = consumerController.create(ConsumerConfiguration.PRODUCTION_CONSUMER_PROPERTIES);
+        int topicPartitionsSize = topicPartitionController.collectAllTopicPartitions();
+        outputManager.storeNumberOfPartitions(topicPartitionsSize);
 
-        topicConsistenceValidator.validate(backupConsumer, productionConsumer);
 
-        Set<TopicPartition> topicPartitions = consumerController.collectAllTopicPartitions(backupConsumer);
-        OutputManager.storeNumberOfPartitions(topicPartitions.size());
-        blockingQueue = new ArrayBlockingQueue<>(topicPartitions.size(), true, topicPartitions);
-        Thread[] threads = new Thread[ConsumerConfiguration.NUMBER_OF_THREADS];
-        for (int i = 0; i < ConsumerConfiguration.NUMBER_OF_THREADS; i++) {
-            Thread thread = new Thread(new ConsumerPerPartitionService());
-            threads[i] = thread;
-            thread.start();
-        }
+        Thread[] threads = threadController.initAndRunThreads();
+        threadController.joinToThreads(threads);
 
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        OutputManager.print();
+        outputManager.print();
     }
 
     @Scheduled(fixedDelay = 10000)
     public void check() {
-        OutputManager.printProgress();
+        outputManager.printProgress();
     }
 }

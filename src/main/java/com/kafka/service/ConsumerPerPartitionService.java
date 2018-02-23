@@ -1,7 +1,7 @@
 package com.kafka.service;
 
-import com.kafka.consumer.ConsumerController;
-import com.kafka.consumer.configuration.ConsumerConfiguration;
+import com.kafka.controller.ConsumerController;
+import com.kafka.controller.TopicPartitionController;
 import com.kafka.output.OutputManager;
 import com.kafka.spring.StaticContextHolder;
 import com.kafka.validation.RecordValidator;
@@ -13,7 +13,6 @@ import org.apache.kafka.common.TopicPartition;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ConsumerPerPartitionService implements Runnable{
@@ -23,26 +22,26 @@ public class ConsumerPerPartitionService implements Runnable{
     private KafkaConsumer productionConsumer;
     private ConsumerController consumerController;
     private RecordValidator recordValidator;
+    private OutputManager outputManager;
+    private TopicPartitionController topicPartitionController;
 
 
     public ConsumerPerPartitionService() {
         consumerController = StaticContextHolder.getBean(ConsumerController.class);
-        backupConsumer = consumerController.create(ConsumerConfiguration.BACKUP_CONSUMER_PROPERTIES);
-        productionConsumer = consumerController.create(ConsumerConfiguration.PRODUCTION_CONSUMER_PROPERTIES);
+        backupConsumer = consumerController.createBackupConsumer();
+        productionConsumer = consumerController.createProductionConsumer();
         recordValidator = StaticContextHolder.getBean(RecordValidator.class);
+        outputManager = StaticContextHolder.getBean(OutputManager.class);
+        topicPartitionController = StaticContextHolder.getBean(TopicPartitionController.class);
     }
 
     @Override
     public void run() {
-        try {
-            while ((topicPartition = KafkaApplicationService.blockingQueue.poll(500, TimeUnit.MILLISECONDS)) != null) {
-                List<ConsumerRecord> backupConsumerRecords = processConsumer(backupConsumer);
-                List<ConsumerRecord> productionConsumerRecords = processConsumer(productionConsumer);
-                ValidationResult result = recordValidator.validate(backupConsumerRecords, productionConsumerRecords);
-                OutputManager.storeResult(topicPartition, result);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+        while ((topicPartition = topicPartitionController.getTopicPartitionFromQueue()) != null) {
+            List<ConsumerRecord> backupConsumerRecords = processConsumer(backupConsumer);
+            List<ConsumerRecord> productionConsumerRecords = processConsumer(productionConsumer);
+            ValidationResult result = recordValidator.validate(backupConsumerRecords, productionConsumerRecords);
+            outputManager.storeResult(topicPartition, result);
         }
     }
 

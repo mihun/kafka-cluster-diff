@@ -3,40 +3,40 @@ package com.kafka.output;
 import com.kafka.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@Component
 public class OutputManager {
-    private static Map<TopicPartition, ValidationResult> failed = new ConcurrentHashMap<>();
-    private static Set<TopicPartition> successful = Collections.newSetFromMap(new ConcurrentHashMap<TopicPartition, Boolean>());
-    private static int numberOfPartitions = 1;
+    private Map<TopicPartition, ValidationResult> failed = new ConcurrentHashMap<>();
+    private Set<TopicPartition> successful = Collections.newSetFromMap(new ConcurrentHashMap<TopicPartition, Boolean>());
+    private int numberOfPartitions;
 
-    public static void storeResult(TopicPartition topicPartition, ValidationResult validationResult){
-        switch(validationResult){
+    public void storeResult(TopicPartition topicPartition, ValidationResult validationResult) {
+        switch (validationResult) {
             case INCONSISTENT_PARTITION_SIZE:
             case DEFECT_DATA:
                 failed.put(topicPartition, validationResult);
                 return;
             case SUCCESSFUL:
                 successful.add(topicPartition);
-
         }
     }
 
-    public static void storeNumberOfPartitions(int numberOfPartitions){
-        OutputManager.numberOfPartitions = numberOfPartitions;
+    public void storeNumberOfPartitions(int numberOfPartitions) {
+        this.numberOfPartitions = numberOfPartitions;
     }
 
-
-    public static void print(){
+    public void print() {
         printSuccessful();
         printFailed();
         printProgress();
     }
 
-    public static void printFailed(){
+    public void printFailed() {
         if (failed.size() > 0) {
             log.error("FAILED TopicPartition Result:");
             for (TopicPartition topicPartition : failed.keySet()) {
@@ -45,16 +45,16 @@ public class OutputManager {
         }
     }
 
-    public static void printSuccessful(){
+    public void printSuccessful() {
         log.info("SUCCESSFUL TopicPartition Result:");
         log.info("{}", successful);
     }
 
-    public static void printProgress(){
-        int successfulPartitions = successful.size();
-        int failedPartitions = failed.size();
-        log.info(" Processed {}% SUCCESSFUL:{} | FAILED:{}", (failedPartitions + successfulPartitions)*100/numberOfPartitions, successfulPartitions, failedPartitions);
+    public void printProgress() {
+        if (numberOfPartitions > 0) {
+            int successfulPartitions = successful.size();
+            int failedPartitions = failed.size();
+            log.info(" Processed {}% SUCCESSFUL:{} | FAILED:{}", (failedPartitions + successfulPartitions) * 100 / numberOfPartitions, successfulPartitions, failedPartitions);
+        }
     }
-
-
 }
