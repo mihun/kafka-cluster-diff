@@ -47,9 +47,7 @@ public class OutputManager {
 
     public static void printSuccessful(){
         log.info("SUCCESSFUL TopicPartition Result:");
-        for (TopicPartition topicPartition : successful) {
-            log.info("Topic-Partition [{}]", topicPartition);
-        }
+        log.info("{}", successful);
     }
 
     public static void printProgress(){
