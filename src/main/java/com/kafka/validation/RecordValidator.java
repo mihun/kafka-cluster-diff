@@ -19,7 +19,7 @@ public class RecordValidator {
     private boolean checkConsistence(List<ConsumerRecord> backupConsumerRecords, List<ConsumerRecord> productionConsumerRecords) {
         int backupRecordsSize = backupConsumerRecords.size();
         int productionRecordsSize = productionConsumerRecords.size();
-        return backupRecordsSize < productionRecordsSize;
+        return backupRecordsSize <= productionRecordsSize;
     }
 
     private ValidationResult checkRecords(List<ConsumerRecord> backupConsumerRecords, List<ConsumerRecord> productionConsumerRecords) {
