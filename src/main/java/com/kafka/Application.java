@@ -58,12 +58,12 @@ public class Application  implements ApplicationRunner {
                 .defaultsTo(300);
 
         OptionSpec<String> customProperties = parser.accepts("custom.properties",
-                "Ignored list of topics.")
+                "Custom properties.")
                 .withRequiredArg()
                 .ofType(String.class);
 
         OptionSpec<Integer> bufferSize = parser.accepts("buffer-size",
-                "Number of production threads.")
+                "Buffer size to compare data.")
                 .withRequiredArg()
                 .ofType(Integer.class)
                 .defaultsTo(2000);
