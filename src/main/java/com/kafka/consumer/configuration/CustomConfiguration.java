@@ -1,8 +1,5 @@
 package com.kafka.consumer.configuration;
 
-import com.kafka.consumer.reader.PropertiesReader;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,7 +8,7 @@ import java.util.List;
 public class CustomConfiguration {
 
     private int numberOfThreads;
-    private List<Object> excludeTopicList;
+    private List excludeTopicList;
     private int bufferSize;
     private long pollTimeout;
 
@@ -31,13 +28,20 @@ public class CustomConfiguration {
         return pollTimeout;
     }
 
-    @Autowired
-    public CustomConfiguration(PropertiesReader propertiesReader) {
-        PropertiesConfiguration properties = propertiesReader.readPropertiesConfiguration("custom.properties");
-        numberOfThreads = properties.getInt(Constants.THREADS_PROPERTY);
-        excludeTopicList = properties.getList(Constants.EXCLUDE_TOPICS_PROPERTY);
-        bufferSize = properties.getInt(Constants.BUFFER_SIZE_PROPERTY);
-        pollTimeout = properties.getLong(Constants.POLL_TIMEOUT_PROPERTY);
+    public void setNumberOfThreads(int numberOfThreads) {
+        this.numberOfThreads = numberOfThreads;
+    }
+
+    public void setExcludeTopicList(List excludeTopicList) {
+        this.excludeTopicList = excludeTopicList;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public void setPollTimeout(long pollTimeout) {
+        this.pollTimeout = pollTimeout;
     }
 
 }
