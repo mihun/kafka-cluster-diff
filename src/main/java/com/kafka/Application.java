@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.UUID;
@@ -97,10 +98,7 @@ public class Application  implements ApplicationRunner {
             sourceConsumerProperties.put("group.id", UUID.randomUUID().toString());
         }
 
-        PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration();
-        try (Reader reader = new FileReader(options.valueOf(sourceConsumerConfig)))  {
-            propertiesConfiguration.load(reader);
-        }
+
 
         ConsumerConfiguration consumerConfiguration = StaticContextHolder.getBean(ConsumerConfiguration.class);
         consumerConfiguration.setBackupConsumerProperties(backupConsumerProperties);
@@ -110,7 +108,19 @@ public class Application  implements ApplicationRunner {
         customConfiguration.setBufferSize(options.valueOf(bufferSize));
         customConfiguration.setNumberOfThreads(options.valueOf(numberOfThreads));
         customConfiguration.setPollTimeout(options.valueOf(pollTimeoutMs));
-        customConfiguration.setExcludeTopicList(propertiesConfiguration.getList("exclude-topics"));
+
+        PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration();
+        String fileName = options.valueOf(customProperties);
+        System.out.println("fileName = " + fileName);
+        if (fileName != null) {
+            try (Reader reader = new FileReader(fileName)) {
+                propertiesConfiguration.load(reader);
+                customConfiguration.setExcludeTopicList(propertiesConfiguration.getList("exclude-topics"));
+            }
+        } else {
+            customConfiguration.setExcludeTopicList(new ArrayList());
+        }
+
 
         StaticContextHolder.getBean(KafkaApplicationService.class).run();
         System.exit(0);
