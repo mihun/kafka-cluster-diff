@@ -37,7 +37,7 @@ public class ConsumerPerPartitionService implements Runnable{
             backupConsumer.assign(Collections.singletonList(topicPartition));
             productionConsumer.assign(Collections.singletonList(topicPartition));
 
-            ValidationResult result = consumerValidationProcessor.process(backupConsumer, productionConsumer);
+            ValidationResult result = consumerValidationProcessor.process(backupConsumer, productionConsumer, topicPartition);
             outputManager.storeResult(topicPartition, result);
         }
     }

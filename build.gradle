@@ -16,7 +16,7 @@ apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 jar {
-    baseName = 'kafka-cluster-diff'
+    baseName = 'kafka-diff-tool'
     version =  '0.1.0'
 }
 

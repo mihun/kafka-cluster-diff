@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class TopicPartitionController {
 
     private BlockingQueue<TopicPartition> blockingQueue;
+    private Map<TopicPartition, Long> topicPartitionEndOffsets;
 
     private final CustomConfiguration customConfiguration;
     private final ConsumerController consumerController;
@@ -43,6 +44,7 @@ public class TopicPartitionController {
                 .flatMap(Collection::stream)
                 .forEach(partitionInfo -> topicPartitions.add(new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
         blockingQueue = new ArrayBlockingQueue<>(topicPartitions.size(), true, topicPartitions);
+        topicPartitionEndOffsets = Collections.unmodifiableMap(new HashMap<>(backupConsumer.endOffsets(topicPartitions)));
         return topicPartitions.size();
     }
 
@@ -54,6 +56,9 @@ public class TopicPartitionController {
         }
     }
 
+    public Long getLastOffset(TopicPartition topicPartition) {
+        return topicPartitionEndOffsets.get(topicPartition);
+    }
 
 
 

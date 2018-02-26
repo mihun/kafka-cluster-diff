@@ -1,12 +1,14 @@
 package com.kafka.consumer;
 
 import com.kafka.consumer.configuration.CustomConfiguration;
+import com.kafka.controller.TopicPartitionController;
 import com.kafka.spring.StaticContextHolder;
 import com.kafka.validation.RecordValidator;
 import com.kafka.validation.ValidationResult;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +22,20 @@ public class ConsumerUnitChain {
     private ConsumerUnit productionConsumerUnit;
     private int bufferSize;
     private long pollTimeout;
+    private TopicPartition topicPartition;
+    private Long lastOffset;
 
-    public ConsumerUnitChain(KafkaConsumer backupConsumer, KafkaConsumer productionConsumer) {
+    public ConsumerUnitChain(KafkaConsumer backupConsumer, KafkaConsumer productionConsumer, TopicPartition topicPartition) {
         CustomConfiguration customConfiguration = StaticContextHolder.getBean(CustomConfiguration.class);
         this.recordValidator = StaticContextHolder.getBean(RecordValidator.class);
         this.backupConsumerUnit = new ConsumerUnit(backupConsumer);
         this.productionConsumerUnit = new ConsumerUnit(productionConsumer);
         bufferSize = customConfiguration.getBufferSize();
         pollTimeout = customConfiguration.getPollTimeout();
+        this.topicPartition = topicPartition;
+        TopicPartitionController topicPartitionController = StaticContextHolder.getBean(TopicPartitionController.class);
+        lastOffset = topicPartitionController.getLastOffset(topicPartition);
     }
-
 
     public ConsumerUnitChain prepare(){
         backupConsumerUnit.initOrContinue();
@@ -69,7 +75,6 @@ public class ConsumerUnitChain {
 
         private boolean isFinished =false;
 
-
         ConsumerUnit(KafkaConsumer consumer) {
             this.consumer = consumer;
         }
@@ -80,13 +85,19 @@ public class ConsumerUnitChain {
 
 
         void processData(){
-            if (currentRecords.size() >= bufferSize) return;
+            if (currentRecords.size() >= bufferSize) {
+                return;
+            }
+
 
             ConsumerRecords records = consumer.poll(pollTimeout);
-
             if (records.isEmpty()) {
-                isFinished = true;
-                return;
+                if (consumer.position(topicPartition) < lastOffset){
+                    processData();
+                } else {
+                    isFinished = true;
+                    return;
+                }
             }
 
             for (Object record : records) {
@@ -120,6 +131,5 @@ public class ConsumerUnitChain {
             isFinished = false;
         }
     }
-
 
 }
