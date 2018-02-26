@@ -32,8 +32,8 @@ public class TopicPartitionController {
 
     public int collectAllTopicPartitions() {
         KafkaConsumer backupConsumer = consumerController.createBackupConsumer();
-        KafkaConsumer productionConsumer = consumerController.createProductionConsumer();
-        topicConsistenceValidator.validate(backupConsumer, productionConsumer);
+        KafkaConsumer sourceConsumer = consumerController.createSourceConsumer();
+        topicConsistenceValidator.validate(backupConsumer, sourceConsumer);
 
         Map<String, List<PartitionInfo>> allTopics = backupConsumer.listTopics();
         Set<TopicPartition> topicPartitions = new HashSet<>(allTopics.size());

@@ -11,20 +11,20 @@ import java.util.List;
 @Component
 public class RecordValidator {
 
-    public ValidationResult validate(List<ConsumerRecord> backupConsumerRecords, List<ConsumerRecord> productionConsumerRecords) {
+    public ValidationResult validate(List<ConsumerRecord> backupConsumerRecords, List<ConsumerRecord> sourceConsumerRecords) {
         if (CollectionUtils.isEmpty(backupConsumerRecords)){
             return ValidationResult.SUCCESSFUL;
         }
         for (int i = 0; i < backupConsumerRecords.size(); i++) {
-            if (!isRecordSame(backupConsumerRecords.get(i), productionConsumerRecords.get(i))){
+            if (!isRecordSame(backupConsumerRecords.get(i), sourceConsumerRecords.get(i))){
                 return ValidationResult.DEFECT_DATA;
             }
         }
         return ValidationResult.SUCCESSFUL_BUFFER_PORTION;
     }
 
-    private boolean isRecordSame(ConsumerRecord backupRecord, ConsumerRecord productionRecord) {
-        return backupRecord.serializedValueSize() == productionRecord.serializedValueSize()
-                && backupRecord.serializedKeySize() == backupRecord.serializedKeySize();
+    private boolean isRecordSame(ConsumerRecord backupRecord, ConsumerRecord sourceRecord) {
+        return backupRecord.serializedValueSize() == sourceRecord.serializedValueSize()
+                && backupRecord.serializedKeySize() == sourceRecord.serializedKeySize();
     }
 }

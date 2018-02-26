@@ -18,13 +18,13 @@ public class ConsumerValidationProcessor {
         this.partitionConsistenceValidator = partitionConsistenceValidator;
     }
 
-    public ValidationResult process(KafkaConsumer backupConsumer, KafkaConsumer productionConsumer, TopicPartition topicPartition){
+    public ValidationResult process(KafkaConsumer backupConsumer, KafkaConsumer sourceConsumer, TopicPartition topicPartition){
 
-        boolean isPartitionConsistence = partitionConsistenceValidator.validate(productionConsumer, topicPartition);
+        boolean isPartitionConsistence = partitionConsistenceValidator.validate(sourceConsumer, topicPartition);
         if (!isPartitionConsistence){
             return ValidationResult.INCONSISTENT_PARTITION_SIZE;
         }
-        ConsumerUnitChain consumerUnitChain = new ConsumerUnitChain(backupConsumer, productionConsumer, topicPartition);
+        ConsumerUnitChain consumerUnitChain = new ConsumerUnitChain(backupConsumer, sourceConsumer, topicPartition);
         return processConsumerUnitChain(consumerUnitChain);
     }
 

@@ -11,14 +11,14 @@ import java.util.UUID;
 public class ConsumerConfiguration {
 
     private Properties backupConsumerProperties;
-    private Properties productionConsumerProperties;
+    private Properties sourceConsumerProperties;
 
     public Properties getBackupConsumerProperties() {
         return backupConsumerProperties;
     }
 
-    public Properties getProductionConsumerProperties() {
-        return productionConsumerProperties;
+    public Properties getSourceConsumerProperties() {
+        return sourceConsumerProperties;
     }
 
     @Autowired
@@ -27,8 +27,8 @@ public class ConsumerConfiguration {
         backupConsumerProperties.put(Constants.GROUP_ID_PROPERTY, UUID.randomUUID().toString());
         this.backupConsumerProperties = backupConsumerProperties;
 
-        Properties productionConsumerProperties = propertiesReader.readProperties("source-consumer.properties");
-        productionConsumerProperties.put(Constants.GROUP_ID_PROPERTY, UUID.randomUUID().toString());
-        this.productionConsumerProperties = productionConsumerProperties;
+        Properties sourceConsumerProperties = propertiesReader.readProperties("source-consumer.properties");
+        sourceConsumerProperties.put(Constants.GROUP_ID_PROPERTY, UUID.randomUUID().toString());
+        this.sourceConsumerProperties = sourceConsumerProperties;
     }
 }

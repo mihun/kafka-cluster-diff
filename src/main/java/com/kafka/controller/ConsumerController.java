@@ -19,8 +19,8 @@ public class ConsumerController {
         return new KafkaConsumer(consumerConfiguration.getBackupConsumerProperties());
     }
 
-    public KafkaConsumer createProductionConsumer(){
-        return new KafkaConsumer(consumerConfiguration.getProductionConsumerProperties());
+    public KafkaConsumer createSourceConsumer(){
+        return new KafkaConsumer(consumerConfiguration.getSourceConsumerProperties());
     }
 
 }

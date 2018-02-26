@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TopicConsistenceValidator {
 
-    public void validate(KafkaConsumer backupConsumer, KafkaConsumer productionConsumer){
+    public void validate(KafkaConsumer backupConsumer, KafkaConsumer sourceConsumer){
         int backupTopicSize = backupConsumer.listTopics().size();
-        int productionTopicSize = productionConsumer.listTopics().size();
-        if (backupTopicSize != productionTopicSize)
-            throw new InconsistentTopicException(backupTopicSize, productionTopicSize);
+        int sourceTopicSize = sourceConsumer.listTopics().size();
+        if (backupTopicSize != sourceTopicSize)
+            throw new InconsistentTopicException(backupTopicSize, sourceTopicSize);
         else
             log.info("TopicConsistence is successful with size {}", backupTopicSize );
     }

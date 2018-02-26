@@ -18,9 +18,9 @@ public class PartitionConsistenceValidator {
         this.topicPartitionController = topicPartitionController;
     }
 
-    public boolean validate(KafkaConsumer productionConsumer, TopicPartition topicPartition) {
+    public boolean validate(KafkaConsumer sourceConsumer, TopicPartition topicPartition) {
         Long backupLastOffset = topicPartitionController.getLastOffset(topicPartition);
-        Long productionLastOffset = (Long) productionConsumer.endOffsets(Collections.singletonList(topicPartition)).get(topicPartition);
-        return (backupLastOffset <= productionLastOffset);
+        Long sourceLastOffset = (Long) sourceConsumer.endOffsets(Collections.singletonList(topicPartition)).get(topicPartition);
+        return (backupLastOffset <= sourceLastOffset);
     }
 }

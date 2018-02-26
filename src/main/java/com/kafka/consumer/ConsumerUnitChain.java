@@ -19,17 +19,17 @@ public class ConsumerUnitChain {
     private RecordValidator recordValidator;
 
     private ConsumerUnit backupConsumerUnit;
-    private ConsumerUnit productionConsumerUnit;
+    private ConsumerUnit sourceConsumerUnit;
     private int bufferSize;
     private long pollTimeout;
     private TopicPartition topicPartition;
     private Long lastOffset;
 
-    public ConsumerUnitChain(KafkaConsumer backupConsumer, KafkaConsumer productionConsumer, TopicPartition topicPartition) {
+    public ConsumerUnitChain(KafkaConsumer backupConsumer, KafkaConsumer sourceConsumer, TopicPartition topicPartition) {
         CustomConfiguration customConfiguration = StaticContextHolder.getBean(CustomConfiguration.class);
         this.recordValidator = StaticContextHolder.getBean(RecordValidator.class);
         this.backupConsumerUnit = new ConsumerUnit(backupConsumer);
-        this.productionConsumerUnit = new ConsumerUnit(productionConsumer);
+        this.sourceConsumerUnit = new ConsumerUnit(sourceConsumer);
         bufferSize = customConfiguration.getBufferSize();
         pollTimeout = customConfiguration.getPollTimeout();
         this.topicPartition = topicPartition;
@@ -39,27 +39,27 @@ public class ConsumerUnitChain {
 
     public ConsumerUnitChain prepare(){
         backupConsumerUnit.initOrContinue();
-        productionConsumerUnit.initOrContinue();
+        sourceConsumerUnit.initOrContinue();
         return this;
     }
 
     public ConsumerUnitChain start(){
         backupConsumerUnit.processData();
-        productionConsumerUnit.processData();
+        sourceConsumerUnit.processData();
         return this;
     }
 
     public ConsumerUnitChain buffer(){
         backupConsumerUnit.buffer();
-        productionConsumerUnit.buffer();
+        sourceConsumerUnit.buffer();
         return this;
     }
 
     public ValidationResult validate(){
-        if (backupConsumerUnit.getCurrentRecords().size() > productionConsumerUnit.getCurrentRecords().size()){
+        if (backupConsumerUnit.getCurrentRecords().size() > sourceConsumerUnit.getCurrentRecords().size()){
             return ValidationResult.INCONSISTENT_PARTITION_SIZE;
         }
-        return recordValidator.validate(backupConsumerUnit.getCurrentRecords(), productionConsumerUnit.getCurrentRecords());
+        return recordValidator.validate(backupConsumerUnit.getCurrentRecords(), sourceConsumerUnit.getCurrentRecords());
     }
 
     public boolean isFinished(){

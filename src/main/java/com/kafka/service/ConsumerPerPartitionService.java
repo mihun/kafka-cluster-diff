@@ -32,12 +32,12 @@ public class ConsumerPerPartitionService implements Runnable{
     public void run() {
         TopicPartition topicPartition;
         KafkaConsumer backupConsumer = consumerController.createBackupConsumer();
-        KafkaConsumer productionConsumer = consumerController.createProductionConsumer();
+        KafkaConsumer sourceConsumer = consumerController.createSourceConsumer();
         while ((topicPartition = topicPartitionController.getTopicPartitionFromQueue()) != null) {
             backupConsumer.assign(Collections.singletonList(topicPartition));
-            productionConsumer.assign(Collections.singletonList(topicPartition));
+            sourceConsumer.assign(Collections.singletonList(topicPartition));
 
-            ValidationResult result = consumerValidationProcessor.process(backupConsumer, productionConsumer, topicPartition);
+            ValidationResult result = consumerValidationProcessor.process(backupConsumer, sourceConsumer, topicPartition);
             outputManager.storeResult(topicPartition, result);
         }
     }
