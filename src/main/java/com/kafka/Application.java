@@ -111,7 +111,6 @@ public class Application  implements ApplicationRunner {
 
         PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration();
         String fileName = options.valueOf(customProperties);
-        System.out.println("fileName = " + fileName);
         if (fileName != null) {
             try (Reader reader = new FileReader(fileName)) {
                 propertiesConfiguration.load(reader);
