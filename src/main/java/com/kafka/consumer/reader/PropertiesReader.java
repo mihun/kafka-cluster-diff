@@ -1,4 +1,4 @@
-package com.kafka.consumer.configuration;
+package com.kafka.consumer.reader;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.springframework.core.io.ClassPathResource;

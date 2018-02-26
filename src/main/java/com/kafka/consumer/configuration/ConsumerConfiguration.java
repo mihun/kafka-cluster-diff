@@ -1,5 +1,6 @@
 package com.kafka.consumer.configuration;
 
+import com.kafka.consumer.reader.PropertiesReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

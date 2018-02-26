@@ -1,52 +1,45 @@
 package com.kafka.service;
 
+import com.kafka.consumer.ConsumerValidationProcessor;
 import com.kafka.controller.ConsumerController;
 import com.kafka.controller.TopicPartitionController;
 import com.kafka.output.OutputManager;
 import com.kafka.spring.StaticContextHolder;
-import com.kafka.validation.RecordValidator;
 import com.kafka.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 
 import java.util.Collections;
-import java.util.List;
 
 @Slf4j
 public class ConsumerPerPartitionService implements Runnable{
 
-    private TopicPartition topicPartition;
-    private KafkaConsumer backupConsumer;
-    private KafkaConsumer productionConsumer;
-    private ConsumerController consumerController;
-    private RecordValidator recordValidator;
+    private ConsumerValidationProcessor consumerValidationProcessor;
     private OutputManager outputManager;
     private TopicPartitionController topicPartitionController;
+    private ConsumerController consumerController;
 
 
     public ConsumerPerPartitionService() {
-        consumerController = StaticContextHolder.getBean(ConsumerController.class);
-        backupConsumer = consumerController.createBackupConsumer();
-        productionConsumer = consumerController.createProductionConsumer();
-        recordValidator = StaticContextHolder.getBean(RecordValidator.class);
+        consumerValidationProcessor = StaticContextHolder.getBean(ConsumerValidationProcessor.class);
         outputManager = StaticContextHolder.getBean(OutputManager.class);
         topicPartitionController = StaticContextHolder.getBean(TopicPartitionController.class);
+        consumerController = StaticContextHolder.getBean(ConsumerController.class);
     }
 
     @Override
     public void run() {
+        TopicPartition topicPartition;
+        KafkaConsumer backupConsumer = consumerController.createBackupConsumer();
+        KafkaConsumer productionConsumer = consumerController.createProductionConsumer();
         while ((topicPartition = topicPartitionController.getTopicPartitionFromQueue()) != null) {
-            List<ConsumerRecord> backupConsumerRecords = processConsumer(backupConsumer);
-            List<ConsumerRecord> productionConsumerRecords = processConsumer(productionConsumer);
-            ValidationResult result = recordValidator.validate(backupConsumerRecords, productionConsumerRecords);
+            backupConsumer.assign(Collections.singletonList(topicPartition));
+            productionConsumer.assign(Collections.singletonList(topicPartition));
+
+            ValidationResult result = consumerValidationProcessor.process(backupConsumer, productionConsumer);
             outputManager.storeResult(topicPartition, result);
         }
     }
 
-    private List<ConsumerRecord> processConsumer(KafkaConsumer consumer){
-        consumer.assign(Collections.singletonList(topicPartition));
-        return consumerController.readMessage(consumer);
-    }
 }
