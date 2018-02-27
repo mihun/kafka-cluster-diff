@@ -13,6 +13,7 @@ gradle-app.setting
 # IntelliJ project files
 .idea/
 out
+*.iml
 
 # Package Files #
 *.jar
