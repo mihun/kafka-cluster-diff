@@ -33,12 +33,17 @@ public class TopicPartitionController {
     public int collectAllTopicPartitions() {
         KafkaConsumer backupConsumer = consumerController.createBackupConsumer();
         KafkaConsumer sourceConsumer = consumerController.createSourceConsumer();
-        topicConsistenceValidator.validate(backupConsumer, sourceConsumer);
 
-        Map<String, List<PartitionInfo>> allTopics = backupConsumer.listTopics();
-        Set<TopicPartition> topicPartitions = new HashSet<>(allTopics.size());
-        allTopics.keySet().removeAll(customConfiguration.getExcludeTopicList());
-        allTopics
+        Map<String, List<PartitionInfo>> allBackupTopics = backupConsumer.listTopics();
+        allBackupTopics.keySet().removeAll(customConfiguration.getExcludeTopicList());
+
+        Map<String, List<PartitionInfo>> allSourceTopics = sourceConsumer.listTopics();
+        allSourceTopics.keySet().removeAll(customConfiguration.getExcludeTopicList());
+
+        topicConsistenceValidator.validate(allBackupTopics.keySet(), allSourceTopics.keySet());
+
+        Set<TopicPartition> topicPartitions = new HashSet<>(allBackupTopics.size());
+        allBackupTopics
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
