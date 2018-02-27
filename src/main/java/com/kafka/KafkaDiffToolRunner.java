@@ -10,9 +10,8 @@ import joptsimple.OptionSpec;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.io.FileReader;
 import java.io.Reader;
@@ -24,14 +23,10 @@ import java.util.UUID;
 import static java.lang.String.format;
 import static java.lang.System.exit;
 
+@Profile("!test")
+@Component
+public class KafkaDiffToolRunner implements ApplicationRunner {
 
-@SpringBootApplication
-@EnableScheduling
-public class Application  implements ApplicationRunner {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
 
     @Override
     public void run(ApplicationArguments arguments) throws Exception {
@@ -98,8 +93,6 @@ public class Application  implements ApplicationRunner {
             sourceConsumerProperties.put("group.id", UUID.randomUUID().toString());
         }
 
-
-
         ConsumerConfiguration consumerConfiguration = StaticContextHolder.getBean(ConsumerConfiguration.class);
         consumerConfiguration.setBackupConsumerProperties(backupConsumerProperties);
         consumerConfiguration.setSourceConsumerProperties(sourceConsumerProperties);
@@ -120,9 +113,7 @@ public class Application  implements ApplicationRunner {
             customConfiguration.setExcludeTopicList(new ArrayList());
         }
 
-
         StaticContextHolder.getBean(KafkaApplicationService.class).run();
         System.exit(0);
     }
-
 }

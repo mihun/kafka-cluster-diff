@@ -13,9 +13,14 @@ import java.util.List;
 public class RecordValidator {
 
     public ValidationResult validate(List<ConsumerRecord> backupConsumerRecords, List<ConsumerRecord> sourceConsumerRecords) {
+        if (backupConsumerRecords.size() > sourceConsumerRecords.size()){
+            return ValidationResult.INCONSISTENT_PARTITION_SIZE;
+        }
+
         if (CollectionUtils.isEmpty(backupConsumerRecords)){
             return ValidationResult.SUCCESSFUL;
         }
+
         for (int i = 0; i < backupConsumerRecords.size(); i++) {
             if (!isRecordSame(backupConsumerRecords.get(i), sourceConsumerRecords.get(i))){
                 return ValidationResult.DEFECT_DATA;

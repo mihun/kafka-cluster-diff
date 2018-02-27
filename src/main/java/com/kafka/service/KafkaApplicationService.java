@@ -2,6 +2,7 @@ package com.kafka.service;
 
 import com.kafka.controller.ThreadController;
 import com.kafka.controller.TopicPartitionController;
+import com.kafka.exception.InconsistentTopicException;
 import com.kafka.output.OutputManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,14 +25,19 @@ public class KafkaApplicationService {
     }
 
     public void run()  {
-        int topicPartitionsSize = topicPartitionController.collectAllTopicPartitions();
-        outputManager.storeNumberOfPartitions(topicPartitionsSize);
+        try {
+            int topicPartitionsSize = topicPartitionController.collectAllTopicPartitions();
+            outputManager.storeNumberOfPartitions(topicPartitionsSize);
 
 
-        Thread[] threads = threadController.initAndRunThreads();
-        threadController.joinToThreads(threads);
+            Thread[] threads = threadController.initAndRunThreads();
+            threadController.joinToThreads(threads);
 
-        outputManager.print();
+            outputManager.print();
+        } catch (InconsistentTopicException e){
+            outputManager.printException(e);
+        }
+
     }
 
     @Scheduled(fixedDelay = 10000)

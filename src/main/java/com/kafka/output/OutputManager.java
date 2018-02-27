@@ -57,4 +57,8 @@ public class OutputManager {
             log.info(" Processed {}% SUCCESSFUL:{} | FAILED:{}", (failedPartitions + successfulPartitions) * 100 / numberOfPartitions, successfulPartitions, failedPartitions);
         }
     }
+
+    public void printException(Exception e) {
+        log.error("{} : {}", e.getClass().getName(), e.getMessage());
+    }
 }

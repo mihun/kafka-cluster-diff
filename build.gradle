@@ -39,4 +39,5 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
     compileOnly ("org.projectlombok:lombok:1.16.14")
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
 }

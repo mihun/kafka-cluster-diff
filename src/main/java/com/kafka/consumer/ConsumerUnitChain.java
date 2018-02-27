@@ -1,7 +1,6 @@
 package com.kafka.consumer;
 
 import com.kafka.consumer.configuration.CustomConfiguration;
-import com.kafka.controller.TopicPartitionController;
 import com.kafka.spring.StaticContextHolder;
 import com.kafka.validation.RecordValidator;
 import com.kafka.validation.ValidationResult;
@@ -11,6 +10,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,18 +23,15 @@ public class ConsumerUnitChain {
     private int bufferSize;
     private long pollTimeout;
     private TopicPartition topicPartition;
-    private Long lastOffset;
 
     public ConsumerUnitChain(KafkaConsumer backupConsumer, KafkaConsumer sourceConsumer, TopicPartition topicPartition) {
         CustomConfiguration customConfiguration = StaticContextHolder.getBean(CustomConfiguration.class);
         this.recordValidator = StaticContextHolder.getBean(RecordValidator.class);
-        this.backupConsumerUnit = new ConsumerUnit(backupConsumer);
-        this.sourceConsumerUnit = new ConsumerUnit(sourceConsumer);
+        this.backupConsumerUnit = new ConsumerUnit(backupConsumer, topicPartition);
+        this.sourceConsumerUnit = new ConsumerUnit(sourceConsumer, topicPartition);
         bufferSize = customConfiguration.getBufferSize();
         pollTimeout = customConfiguration.getPollTimeout();
         this.topicPartition = topicPartition;
-        TopicPartitionController topicPartitionController = StaticContextHolder.getBean(TopicPartitionController.class);
-        lastOffset = topicPartitionController.getLastOffset(topicPartition);
     }
 
     public ConsumerUnitChain prepare(){
@@ -56,9 +53,6 @@ public class ConsumerUnitChain {
     }
 
     public ValidationResult validate(){
-        if (backupConsumerUnit.getCurrentRecords().size() > sourceConsumerUnit.getCurrentRecords().size()){
-            return ValidationResult.INCONSISTENT_PARTITION_SIZE;
-        }
         return recordValidator.validate(backupConsumerUnit.getCurrentRecords(), sourceConsumerUnit.getCurrentRecords());
     }
 
@@ -72,11 +66,13 @@ public class ConsumerUnitChain {
 
         private List<ConsumerRecord> currentRecords;
         private List<ConsumerRecord> remainingRecords;
+        private Long lastOffset;
 
         private boolean isFinished =false;
 
-        ConsumerUnit(KafkaConsumer consumer) {
+        ConsumerUnit(KafkaConsumer consumer, TopicPartition topicPartition) {
             this.consumer = consumer;
+            lastOffset = (Long) consumer.endOffsets(Collections.singletonList(topicPartition)).get(topicPartition);
         }
 
         List<ConsumerRecord> getCurrentRecords() {
