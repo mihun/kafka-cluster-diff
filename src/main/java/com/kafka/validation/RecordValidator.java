@@ -5,6 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -24,7 +25,6 @@ public class RecordValidator {
     }
 
     private boolean isRecordSame(ConsumerRecord backupRecord, ConsumerRecord sourceRecord) {
-        return backupRecord.serializedValueSize() == sourceRecord.serializedValueSize()
-                && backupRecord.serializedKeySize() == sourceRecord.serializedKeySize();
+        return Arrays.equals((byte[]) backupRecord.value(), (byte[]) sourceRecord.value()) && Arrays.equals((byte[]) backupRecord.key(), (byte[]) sourceRecord.key());
     }
 }
